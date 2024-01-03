@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path"
 	"syscall"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
@@ -114,19 +115,21 @@ func (n *NodeCsi) NodePublishVolume(ctx context.Context, req *csi.NodePublishVol
 	}
 
 	dataset := datasetNameFromVolumeName(n.Config.ParentDataset, req.VolumeId)
-	mountpoint, err := n.Client.GetDatasetMountpoint(dataset)
-	if err != nil {
-		log.Printf("Error getting mountpoint for dataset %s: %v", dataset, err)
-		return nil, err
-	}
-
 	if n.Config.StorageHostname == n.Config.NodeHostname {
 		log.Printf("Node is storage node, mounting locally")
+		mountpoint := path.Join("/dataset", dataset)
 		if err := n.nodePublishVolumeLocal(ctx, mountpoint, req.TargetPath); err != nil {
 			return nil, err
 		}
 	} else {
 		log.Printf("Node is not storage node, mounting via NFS")
+
+		mountpoint, err := n.Client.GetDatasetMountpoint(dataset)
+		if err != nil {
+			log.Printf("Error getting mountpoint for dataset %s: %v", dataset, err)
+			return nil, err
+		}
+
 		if err := n.nodePublishVolumeNfs(ctx, mountpoint, req.TargetPath); err != nil {
 			return nil, err
 		}

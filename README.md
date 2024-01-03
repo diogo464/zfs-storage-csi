@@ -17,6 +17,19 @@ resources:
   - storageclass.yaml
 patches:
   - path: secret.yaml
+  # use the mountpoint of the dataset defined in `secret.yaml`
+  - patch: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: storage-csi
+      spec:
+        template: 
+          volumes:
+            - name: dataset           
+              hostPath:
+                path: /var/zfs/blackmesa/k8s
+                type: DirectoryOrCreate
 ```
 
 `storageclass.yaml`

@@ -45,8 +45,8 @@ spec:
           - mountPath: /var/lib/kubelet/pods
             mountPropagation: Bidirectional
             name: mountpoint-dir
-          - mountPath: /var/zfs/blackmesa/csi
-            name: storage
+          - mountPath: /dataset
+            name: dataset
 
         - name: node-driver-registrar
           image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.9.3
@@ -92,6 +92,6 @@ spec:
             type: DirectoryOrCreate
           name: mountpoint-dir
         - hostPath:
-            path: /var/zfs/blackmesa/csi
+            path: ""
             type: DirectoryOrCreate
-          name: storage
+          name: dataset
