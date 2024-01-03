@@ -1,0 +1,16 @@
+name: build
+on: [push]
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4 
+    - name: Login to container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.GITHUB_SERVER_URL }}
+        username: ${{ env.GITHUB_ACTOR }}
+        password: ${{ secrets.AUTH_TOKEN }}
+    - name: Build and push Image 
+      run: PUSH=1 scripts/build.sh
