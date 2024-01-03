@@ -114,16 +114,16 @@ func (n *NodeCsi) NodePublishVolume(ctx context.Context, req *csi.NodePublishVol
 		return nil, err
 	}
 
-	dataset := datasetNameFromVolumeName(n.Config.ParentDataset, req.VolumeId)
 	if n.Config.StorageHostname == n.Config.NodeHostname {
 		log.Printf("Node is storage node, mounting locally")
-		mountpoint := path.Join("/dataset", dataset)
+		mountpoint := path.Join("/dataset", req.VolumeId)
 		if err := n.nodePublishVolumeLocal(ctx, mountpoint, req.TargetPath); err != nil {
 			return nil, err
 		}
 	} else {
 		log.Printf("Node is not storage node, mounting via NFS")
 
+		dataset := datasetNameFromVolumeName(n.Config.ParentDataset, req.VolumeId)
 		mountpoint, err := n.Client.GetDatasetMountpoint(dataset)
 		if err != nil {
 			log.Printf("Error getting mountpoint for dataset %s: %v", dataset, err)
