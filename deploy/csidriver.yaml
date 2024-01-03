@@ -3,15 +3,15 @@ kind: CSIDriver
 metadata:
   name: csi.infra.d464.sh
   labels:
-    app.kubernetes.io/instance: hostpath.csi.k8s.io
-    app.kubernetes.io/part-of: csi-driver-host-path
-    app.kubernetes.io/name: hostpath.csi.k8s.io
-    app.kubernetes.io/component: csi-driver
+    app.kubernetes.io/instance: csi.infra.d464.sh
+    app.kubernetes.io/part-of: storage-csi
+    app.kubernetes.io/name: csi.infra.d464.sh
+    app.kubernetes.io/component: storage-csi-driver
 spec:
   # Supports persistent and ephemeral inline volumes.
   volumeLifecycleModes:
   - Persistent
-  - Ephemeral
+    # - Ephemeral
   # To determine at runtime which mode a volume uses, pod info and its
   # "csi.storage.k8s.io/ephemeral" entry are needed.
   podInfoOnMount: true

@@ -1,36 +1,36 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: csi-hostpathplugin
+  name: storage-csi
   namespace: default
   labels:
-    app.kubernetes.io/instance: hostpath.csi.k8s.io
-    app.kubernetes.io/part-of: csi-driver-host-path
-    app.kubernetes.io/name: csi-hostpathplugin
+    app.kubernetes.io/instance: csi.infra.d464.sh
+    app.kubernetes.io/part-of: storage-csi
+    app.kubernetes.io/name: storage-csi
     app.kubernetes.io/component: plugin
 spec:
-  serviceName: "csi-hostpathplugin"
+  serviceName: "storage-csi-plugin"
   # One replica only:
   # Host path driver only works when everything runs
   # on a single node.
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/instance: hostpath.csi.k8s.io
-      app.kubernetes.io/part-of: csi-driver-host-path
-      app.kubernetes.io/name: csi-hostpathplugin
+      app.kubernetes.io/instance: csi.infra.d464.sh
+      app.kubernetes.io/part-of: storage-csi
+      app.kubernetes.io/name: storage-csi-plugin
       app.kubernetes.io/component: plugin
   template:
     metadata:
       labels:
-        app.kubernetes.io/instance: hostpath.csi.k8s.io
-        app.kubernetes.io/part-of: csi-driver-host-path
-        app.kubernetes.io/name: csi-hostpathplugin
+        app.kubernetes.io/instance: csi.infra.d464.sh
+        app.kubernetes.io/part-of: storage-csi
+        app.kubernetes.io/name: storage-csi-plugin
         app.kubernetes.io/component: plugin
     spec:
       serviceAccountName: storage-csi
       containers:
-        - name: hostpath
+        - name: driver
           image: git.d464.sh/infra/storage-csi:latest
           imagePullPolicy: Always
           args:
