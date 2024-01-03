@@ -7,6 +7,7 @@ the provisioner needs ssh access to node running zfs.
 ## example installation
 this example installation assumes the node running zfs is `citadel` and it creates a storage class named `blackmesa`.
 
+`kustomization.yaml`
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -14,7 +15,6 @@ namespace: storage
 resources:
   - https://git.d464.sh/infra/storage-csi//deploy?ref=main
   - storageclass.yaml
-  - secret.yaml
 patches:
   - path: secret.yaml
 ```
