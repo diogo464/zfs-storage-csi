@@ -1,0 +1,68 @@
+# Attacher must be able to work with PVs, CSINodes and VolumeAttachments
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-attacher-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["csinodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments/status"]
+    verbs: ["patch"]
+#Secret permission is optional.
+#Enable it if you need value from secret.
+#For example, you have key `csi.storage.k8s.io/controller-publish-secret-name` in StorageClass.parameters
+#see https://kubernetes-csi.github.io/docs/secrets-and-credentials.html
+#  - apiGroups: [""]
+#    resources: ["secrets"]
+#    verbs: ["get", "list"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-attacher-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: storage-csi
+    # replace with non-default namespace name
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: csi-attacher-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Attacher must be able to work with configmaps or leases in the current namespace
+# if (and only if) leadership election is enabled
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # replace with non-default namespace name
+  namespace: default
+  name: csi-attacher-role
+rules:
+- apiGroups: ["coordination.k8s.io"]
+  resources: ["leases"]
+  verbs: ["get", "watch", "list", "delete", "update", "create"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: csi-attacher-role-binding
+  # replace with non-default namespace name
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: storage-csi
+    # replace with non-default namespace name
+    namespace: default
+roleRef:
+  kind: Role
+  name: csi-attacher-role
+  apiGroup: rbac.authorization.k8s.io

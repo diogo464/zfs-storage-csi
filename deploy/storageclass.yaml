@@ -4,6 +4,4 @@ metadata:
   name: blackmesa-csi
 provisioner: csi.infra.d464.sh
 allowVolumeExpansion: true
-parameters:
-  local: "false"
 volumeBindingMode: Immediate

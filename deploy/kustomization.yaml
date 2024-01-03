@@ -3,11 +3,11 @@ kind: Kustomization
 namespace: storage-csi
 resources:
   - namespace.yaml
+  - external-attacher-rbac.yaml
+  - external-provisioner-rbac.yaml
+  - external-resizer-rbac.yaml
   - secret.yaml
-  - service.yaml
-  - clusterrolebinding.yaml
   - csidriver.yaml
-  - rolebinding.yaml
   - serviceaccount.yaml
   - statefulset.yaml
   - daemonset.yaml

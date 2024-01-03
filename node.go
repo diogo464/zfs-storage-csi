@@ -143,7 +143,7 @@ func (n *NodeCsi) NodeStageVolume(ctx context.Context, req *csi.NodeStageVolumeR
 // NodeUnpublishVolume implements csi.NodeServer.
 func (n *NodeCsi) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	log.Printf("NodeUnpublishVolume: %v", req)
-	if err := syscall.Unmount(req.TargetPath, 0); err != nil {
+	if err := syscall.Unmount(req.TargetPath, 0); err != nil && !os.IsNotExist(err) {
 		log.Printf("Error unmounting %s: %v", req.TargetPath, err)
 		return nil, err
 	}

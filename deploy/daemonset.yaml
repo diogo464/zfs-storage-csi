@@ -45,9 +45,6 @@ spec:
           - mountPath: /var/lib/kubelet/pods
             mountPropagation: Bidirectional
             name: mountpoint-dir
-          - mountPath: /var/lib/kubelet/plugins
-            mountPropagation: Bidirectional
-            name: plugins-dir
           - mountPath: /var/zfs/blackmesa/csi
             name: storage
 
@@ -56,7 +53,15 @@ spec:
           args:
             - --v=5
             - --csi-address=/csi/csi.sock
-            - --kubelet-registration-path=/var/lib/kubelet/plugins/csi-hostpath/csi.sock
+            - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.infra.d464.sh/csi.sock
+          livenessProbe:
+            exec:
+              command:
+              - /csi-node-driver-registrar
+              - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.infra.d464.sh/csi.sock
+              - --mode=kubelet-registration-probe
+            initialDelaySeconds: 30
+            timeoutSeconds: 15
           securityContext:
             # This is necessary only for systems with SELinux, where
             # non-privileged sidecar containers cannot access unix domain socket
@@ -73,27 +78,15 @@ spec:
             name: socket-dir
           - mountPath: /registration
             name: registration-dir
-          - mountPath: /csi-data-dir
-            name: csi-data-dir
       volumes:
         - hostPath:
-            path: /var/lib/kubelet/plugins/csi-hostpath
+            path: /var/lib/kubelet/plugins/csi.infra.d464.sh/
             type: DirectoryOrCreate
           name: socket-dir
         - hostPath:
-            path: /var/lib/kubelet/plugins_registry
+            path: /var/lib/kubelet/plugins_registry/
             type: Directory
           name: registration-dir
-        - hostPath:
-            # 'path' is where PV data is persisted on host.
-            # using /tmp is also possible while the PVs will not available after plugin container recreation or host reboot
-            path: /var/lib/csi-hostpath-data/
-            type: DirectoryOrCreate
-          name: csi-data-dir
-        - hostPath:
-            path: /var/lib/kubelet/plugins
-            type: Directory
-          name: plugins-dir
         - hostPath:
             path: /var/lib/kubelet/pods
             type: DirectoryOrCreate
