@@ -25,11 +25,12 @@ patches:
         name: storage-csi
       spec:
         template: 
-          volumes:
-            - name: dataset           
-              hostPath:
-                path: /var/zfs/blackmesa/k8s
-                type: DirectoryOrCreate
+          spec:
+            volumes:
+              - name: dataset           
+                hostPath:
+                  path: /var/zfs/blackmesa/k8s
+                  type: DirectoryOrCreate
 ```
 
 `storageclass.yaml`
