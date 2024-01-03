@@ -1,7 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: blackmesa-csi
-provisioner: csi.infra.d464.sh
-allowVolumeExpansion: true
-volumeBindingMode: Immediate

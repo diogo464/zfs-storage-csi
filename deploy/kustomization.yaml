@@ -9,4 +9,3 @@ resources:
   - serviceaccount.yaml
   - statefulset.yaml
   - daemonset.yaml
-  - storageclass.yaml

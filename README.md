@@ -25,7 +25,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: blackmesa
-provisioner: infra.d464.sh
+provisioner: csi.infra.d464.sh
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
 ```
