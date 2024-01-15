@@ -13,9 +13,6 @@ import (
 )
 
 const (
-	PLUGIN_NAME    = "csi.infra.d464.sh"
-	PLUGIN_VERSION = "1.0.0"
-
 	ENV_STORAGE_HOST        = "STORAGE_HOST"
 	ENV_STORAGE_SSH_PORT    = "STORAGE_SSH_PORT"
 	ENV_STORAGE_SSH_USER    = "STORAGE_SSH_USER"
