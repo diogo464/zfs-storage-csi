@@ -59,7 +59,7 @@ func (*ControllerCsi) GetPluginInfo(context.Context, *csi.GetPluginInfoRequest) 
 // Probe implements csi.IdentityServer.
 func (*ControllerCsi) Probe(context.Context, *csi.ProbeRequest) (*csi.ProbeResponse, error) {
 	res := &csi.ProbeResponse{Ready: wrapperspb.Bool(true)}
-	log.Printf("Probe: %v", res)
+	// log.Printf("Probe: %v", res)
 	return res, nil
 }
 

@@ -64,7 +64,7 @@ func (*NodeCsi) GetPluginInfo(context.Context, *csi.GetPluginInfoRequest) (*csi.
 // Probe implements csi.IdentityServer.
 func (*NodeCsi) Probe(context.Context, *csi.ProbeRequest) (*csi.ProbeResponse, error) {
 	res := &csi.ProbeResponse{Ready: wrapperspb.Bool(true)}
-	log.Printf("Probe: %v", res)
+	// log.Printf("Probe: %v", res)
 	return res, nil
 }
 
@@ -87,7 +87,7 @@ func (n *NodeCsi) NodeGetCapabilities(context.Context, *csi.NodeGetCapabilitiesR
 			//},
 		},
 	}
-	log.Printf("NodeGetCapabilities: %v", res)
+	// log.Printf("NodeGetCapabilities: %v", res)
 	return res, nil
 }
 
