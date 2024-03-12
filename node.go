@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"path"
+	"strings"
 	"syscall"
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
@@ -25,6 +27,16 @@ type NodeConfig struct {
 type NodeCsi struct {
 	Config *NodeConfig
 	Client *ZfsClient
+}
+
+func (*NodeCsi) mountExists(target string) (bool, error) {
+	content, err := os.ReadFile("/proc/mounts")
+	if err != nil {
+		return false, errors.New("error reading /proc/mounts")
+	}
+
+	text := string(content)
+	return strings.Contains(text, target), nil
 }
 
 // GetPluginCapabilities implements csi.IdentityServer.
@@ -131,10 +143,22 @@ func (n *NodeCsi) NodeStageVolume(ctx context.Context, req *csi.NodeStageVolumeR
 // NodeUnpublishVolume implements csi.NodeServer.
 func (n *NodeCsi) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	log.Printf("NodeUnpublishVolume: %v", req)
-	if err := syscall.Unmount(req.TargetPath, 0); err != nil && !os.IsNotExist(err) {
-		log.Printf("Error unmounting %s: %v", req.TargetPath, err)
+
+	exists, err := n.mountExists(req.TargetPath)
+	if err != nil {
+		log.Printf("Error checking if %s is mounted: %v", req.TargetPath, err)
 		return nil, err
 	}
+
+	if exists {
+		if err := syscall.Unmount(req.TargetPath, 0); err != nil && !os.IsNotExist(err) {
+			log.Printf("Error unmounting %s: %v", req.TargetPath, err)
+			return nil, err
+		}
+	} else {
+		log.Printf("Target %s is not mounted", req.TargetPath)
+	}
+
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
 
