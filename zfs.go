@@ -175,7 +175,7 @@ func parseQuota(quota string) (*uint64, error) {
 		return nil, nil
 	}
 
-	multiplier := uint64(1)
+	multiplier := float64(1)
 	if strings.HasSuffix(quota, "K") {
 		quota = strings.TrimSuffix(quota, "K")
 		multiplier = 1024
@@ -193,10 +193,12 @@ func parseQuota(quota string) (*uint64, error) {
 		multiplier = 1024 * 1024 * 1024 * 1024
 	}
 
-	v, err := strconv.ParseUint(quota, 10, 64)
+	v, err := strconv.ParseFloat(quota, 64)
 	if err != nil {
 		return nil, err
 	}
 	v = v * multiplier
-	return &v, nil
+
+	total := uint64(v)
+	return &total, nil
 }
