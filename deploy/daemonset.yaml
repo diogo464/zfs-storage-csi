@@ -42,7 +42,7 @@ spec:
           volumeMounts:
           - mountPath: /csi
             name: socket-dir
-          - mountPath: /var/lib/kubelet/pods
+          - mountPath: /var/lib/k0s/kubelet/pods
             mountPropagation: Bidirectional
             name: mountpoint-dir
           - mountPath: /dataset
@@ -54,12 +54,12 @@ spec:
           args:
             - --v=5
             - --csi-address=/csi/csi.sock
-            - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.infra.d464.sh/csi.sock
+            - --kubelet-registration-path=/var/lib/k0s/kubelet/plugins/csi.infra.d464.sh/csi.sock
           livenessProbe:
             exec:
               command:
               - /csi-node-driver-registrar
-              - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.infra.d464.sh/csi.sock
+              - --kubelet-registration-path=/var/lib/k0s/kubelet/plugins/csi.infra.d464.sh/csi.sock
               - --mode=kubelet-registration-probe
             initialDelaySeconds: 30
             timeoutSeconds: 15
@@ -81,15 +81,15 @@ spec:
             name: registration-dir
       volumes:
         - hostPath:
-            path: /var/lib/kubelet/plugins/csi.infra.d464.sh/
+            path: /var/lib/k0s/kubelet/plugins/csi.infra.d464.sh/
             type: DirectoryOrCreate
           name: socket-dir
         - hostPath:
-            path: /var/lib/kubelet/plugins_registry/
+            path: /var/lib/k0s/kubelet/plugins_registry/
             type: Directory
           name: registration-dir
         - hostPath:
-            path: /var/lib/kubelet/pods
+            path: /var/lib/k0s/kubelet/pods
             type: DirectoryOrCreate
           name: mountpoint-dir
         - hostPath:
