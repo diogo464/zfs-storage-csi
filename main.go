@@ -154,20 +154,33 @@ func createZfsClient() (*ZfsClient, error) {
 	}, nil
 }
 
-func datasetNameFromVolumeName(parentDataset, volumeName string) string {
-	if volumeName == "" {
-		panic("volumeName must not be empty")
+func createDatasetName(parentDataset, namespace, name string) string {
+	if parentDataset == "" || namespace == "" || name == "" {
+		panic("parentDataset, namespace and name cannot be empty")
 	}
+
+	volumeName := fmt.Sprintf("%s-%s", namespace, name)
 	if parentDataset == "" {
 		return volumeName
 	}
+
 	if parentDataset[len(parentDataset)-1] == '/' {
 		return parentDataset + volumeName
 	}
+
 	return parentDataset + "/" + volumeName
 }
 
-func volumeNameFromDatasetName(datasetName string) string {
-	parts := strings.Split(datasetName, "/")
-	return parts[len(parts)-1]
+func findExistingDatasetByVolumeId(client *ZfsClient, volumeId string) (string, error) {
+	name, err := client.FindDatasetByProperties(map[string]string{
+		ZFS_PROPERTY_PV:      volumeId,
+		ZFS_PROPERTY_DELETED: ZFS_PROPERTY_DELETED_FALSE,
+	})
+	if err != nil {
+		return "", err
+	}
+	if name == "" {
+		return "", fmt.Errorf("dataset not found for volume id %s", volumeId)
+	}
+	return name, nil
 }

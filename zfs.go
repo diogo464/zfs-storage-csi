@@ -31,6 +31,62 @@ func (z *ZfsClient) CreateDataset(name string, properties map[string]string) err
 	return err
 }
 
+func (z *ZfsClient) RenameDataset(prev, next string) error {
+	args := []string{"zfs", "rename", prev, next}
+	_, err := z.runArgs(args)
+	if err != nil {
+		log.Printf("Error renaming dataset %s to %s: %v", prev, next, err)
+		return err
+	}
+	log.Printf("Renamed dataset %s to %s", prev, next)
+	return nil
+}
+
+// find the first dataset whose properties match the given ones.
+// returns the empty string if no dataset is found.
+func (z *ZfsClient) FindDatasetByProperties(properties map[string]string) (string, error) {
+	propertyNames := []string{}
+	propertyNames = append(propertyNames, "name")
+	for key, _ := range properties {
+		propertyNames = append(propertyNames, key)
+	}
+
+	args := []string{"zfs", "list", "-H", "-t", "filesystem", "-o", strings.Join(propertyNames, ",")}
+	output, err := z.runArgs(args)
+	if err != nil {
+		return "", err
+	}
+
+	lines := strings.Split(output, "\n")
+	for _, line := range lines {
+		propertyValues := strings.Split(line, "\t")
+		if len(propertyValues) != len(properties)+1 {
+			log.Printf("zfs list returned invalid number of property values, expected %d but got %d", len(properties)+1, len(propertyValues))
+			log.Printf("properties: %v", properties)
+			log.Printf("line: %s", line)
+			return "", fmt.Errorf("zfs list returned invalid number of property values, expected %d but got %d", len(properties)+1, len(propertyValues))
+		}
+
+		found := true
+		datasetName := propertyValues[0]
+		for i := 1; i < len(propertyNames); i += 1 {
+			propertyName := propertyNames[i]
+			propertyExpectedValue := properties[propertyName]
+			propertyValue := propertyValues[i]
+			if propertyValue != propertyExpectedValue {
+				found = false
+				break
+			}
+		}
+
+		if found {
+			return datasetName, nil
+		}
+	}
+
+	return "", nil
+}
+
 func (z *ZfsClient) CreateDatasetIfNotExists(name string, properties map[string]string) error {
 	exists, err := z.DatasetExists(name)
 	if err != nil {
@@ -109,8 +165,31 @@ func (z *ZfsClient) GetDatasetMountpoint(name string) (string, error) {
 	return "", fmt.Errorf("dataset not found: %s", name)
 }
 
+func (z *ZfsClient) GetProperty(name string, key string) (string, error) {
+	args := []string{"zfs", "get", "-H", "-o", "value", key, name}
+	output, err := z.runArgs(args)
+	if err != nil {
+		return "", err
+	}
+	value := strings.TrimSpace(output)
+	if value == "" {
+		return "", fmt.Errorf("property not found: %s/%s", name, key)
+	}
+	return value, nil
+}
+
 func (z *ZfsClient) UpdateProperty(name, key, value string) error {
 	args := []string{"zfs", "set", fmt.Sprintf("%s=%s", key, value), name}
+	_, err := z.runArgs(args)
+	return err
+}
+
+func (z *ZfsClient) UpdateProperties(name string, properties map[string]string) error {
+	args := []string{"zfs", "set"}
+	for k, v := range properties {
+		args = append(args, fmt.Sprintf("%s=%s", k, v))
+	}
+	args = append(args, name)
 	_, err := z.runArgs(args)
 	return err
 }
@@ -165,7 +244,7 @@ func (z *ZfsClient) runArgs(args []string) (string, error) {
 	command := z.commandFromArgs(args)
 	log.Printf("Running command: %s", command)
 	output, err := session.CombinedOutput(command)
-	soutput := string(output)
+	soutput := strings.TrimSpace(string(output))
 	log.Printf("Command output: %s", soutput)
 	return soutput, err
 }
