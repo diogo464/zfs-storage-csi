@@ -15,4 +15,14 @@ func TestParseQuota(t *testing.T) {
 	if err != nil || *v != uint64(1.5*1024*1024*1024*1024) {
 		t.Errorf("failed to parse 1.5T %v", err)
 	}
+
+	v, err = parseQuota("none")
+	if err != nil || v != nil {
+		t.Errorf("failed to parse none %v", err)
+	}
+
+	v, err = parseQuota("-")
+	if err != nil || v != nil {
+		t.Errorf("failed to parse - %v", err)
+	}
 }

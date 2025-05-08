@@ -250,7 +250,7 @@ func (z *ZfsClient) runArgs(args []string) (string, error) {
 }
 
 func parseQuota(quota string) (*uint64, error) {
-	if quota == "none" {
+	if quota == "none" || quota == "-" {
 		return nil, nil
 	}
 
