@@ -22,8 +22,8 @@ spec:
         effect: NoSchedule
       containers:
         - name: storage-csi
-          image: git.d464.sh/infra/storage-csi:latest
-          imagePullPolicy: Always
+          image: cr.d464.sh/infra/storage-csi:latest
+          imagePullPolicy: Never
           args: ["node"]
           securityContext:
             privileged: true

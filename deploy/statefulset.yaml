@@ -31,7 +31,7 @@ spec:
       serviceAccountName: storage-csi
       containers:
         - name: driver
-          image: git.d464.sh/infra/storage-csi:latest
+          image: cr.d464.sh/infra/storage-csi:latest
           imagePullPolicy: Always
           args:
             - controller
